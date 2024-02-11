@@ -10,7 +10,7 @@ crab_data <- crab_data %>%
          male = snow_crab_males,
          female = snow_crab_females) %>% 
   mutate(year = as.factor(year),
-         month = as.factor(year),
+         month = as.factor(month),
          .keep = "unused") %>% 
   mutate(total_crabs = male+female,
          female_percentage = female/total_crabs) %>% 
@@ -19,6 +19,7 @@ crab_data <- crab_data %>%
   mutate(Simpson_index = diversity(crab_data[, 11:20], index = "simpson"))
 
 write_csv(crab_data, "crab_data_clean.csv")
+write_rds(crab_data, "crab_data_clean.rds")
 # Make a few plots
 ggplot(crab_data) +
   geom_histogram(aes(x=female_percentage))+
