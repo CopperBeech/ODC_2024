@@ -1,5 +1,4 @@
 library(tidyverse)
-# Also vegan package for diversity index
 library(vegan)
 crab_data <- read_csv("data/snow_crab_survey.csv")
 # Remove the french from the column names, to make subsetting easier.
@@ -11,11 +10,11 @@ colnames(crab_data) <- col_names_english
 #   ratio[ratio %in% c(NaN, Inf, 0)] <- NA
 #   return(ratio)
 # }
-male_pct_function <- function(m, f){
-  total = m+f
-  m_pct <- m/total
-  return(m_pct)
-}
+# male_pct_function <- function(m, f){
+#   total = m+f
+#   m_pct <- m/total
+#   return(m_pct)
+# }
 # Simpson diversity index function (might want to replace with diversity from vegan)
 # simpson_index_func <- function(species_mat){
 #   species_mat <- as.matrix(species_mat)
@@ -29,14 +28,16 @@ male_pct_function <- function(m, f){
 #   return(lambda)
 # }
 
+
 crab_data <- crab_data %>% 
-  mutate(snow_crab_sex_ratio = 
-         male_percentage = male_pct_function(snow_crab_males, snow_crab_females),
-         Simpson_index = diversity(crab_data[, 9:19]), index = "simpson")
+  mutate(total_crabs = snow_crab_males+snow_crab_females,
+         female_percentage = snow_crab_females/total_crabs) %>% 
+  relocate(total_crabs, .after = snow_crab_females) %>% 
+  mutate(Simpson_index = diversity(crab_data[, 11:19], index = "simpson"))
 # Make a few plots
 ggplot(crab_data) +
-  geom_histogram(aes(x=male_percentage))+
-  labs(title = "Snow Crab Male Percentage")
+  geom_histogram(aes(x=female_percentage))+
+  labs(title = "Snow Crab Female Percentage")
 ggplot(crab_data) +
   geom_histogram(aes(x=Simpson_index))+
   labs(title = "Simpson Index")
