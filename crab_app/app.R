@@ -11,6 +11,13 @@ ui <- fluidPage(
   titlePanel("Snow Crab Trawl Survey Data"),
   fluidRow(
     column(3, offset = 0.5,
+           selectInput("year",
+                       "Choose year",
+                       list("All years",
+                            2019, 2020, 2021, 2022)
+                       )
+           ),
+    column(3,
            selectInput("variable",
                        "Choose variable to plot:",
                        list("Total snow crabs",
@@ -41,11 +48,16 @@ server <- function(input, output) {
            "Male snow crabs" = "male",
            "Female snow crabs" = "female",
            "Proportion of female snow crabs" = "female_percentage",
-           "Simpson diversity index" = "Simpson_index")
+           "Simpson diversity index" = "Simpson_index") %>% 
+    mutate(across(21:22, round, 3))
+  
   
   app_data <- reactive({
-    crab_data %>% 
-      select(lon, lat, input$variable)
+      if(input$year != "All years"){
+        crab_data <- filter(crab_data, year == input$year)
+      } else crab_data <- crab_data
+      crab_data %>% 
+        select(lon, lat, input$variable)
     })
 
   output$distPlot <- renderPlot({
@@ -70,10 +82,11 @@ server <- function(input, output) {
       scale_dat <- map_dat
     }
     pal <- colorNumeric("Purples", domain = scale_dat$chosen_var)
+    lab <- paste0(input$variable, ": ", map_dat$chosen_var)
       m <- leaflet(map_dat) %>%
-        addTiles() %>%
+        addProviderTiles(providers$Esri.OceanBasemap) %>%
         addCircleMarkers(~lon, ~lat, radius = 1, 
-                         color = ~pal(chosen_var)) %>% 
+                         color = ~pal(chosen_var), label = lab) %>% 
         addLegend("bottomleft", pal = pal, map_dat$chosen_var, 
                   title = input$variable)
     })
