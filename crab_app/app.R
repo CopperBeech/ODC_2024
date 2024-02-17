@@ -53,7 +53,7 @@ server <- function(input, output) {
       crab_data <- filter(crab_data, year == input$year)
     } else crab_data <- crab_data
     crab_data %>% 
-      select(lon, lat, input$variable)
+      dplyr::select(lon, lat, input$variable)
   })
   
   scale_dat <- reactive({
@@ -71,17 +71,17 @@ server <- function(input, output) {
   
   colorpal <- reactive({
     col_dat <- req(scale_dat())
-    colorpal <- colorNumeric("Purples", domain = col_dat[,3])
+    colorpal <- colorNumeric("magma", domain = col_dat[,3], reverse = TRUE)
   })
   
   output$distPlot <- renderPlot({
     plot_data <- req(app_data())
     var <- as.character(input$variable)
     colnames(plot_data)[3] <- var
-    ggplot(plot_data)+
-      geom_histogram(aes(x = .data[[var]]))+
-      ggtitle(paste("Histogram of", var))+
-      theme_light()
+    ggplot(plot_data, aes(x = .data[[var]]))+
+      geom_histogram(aes(y = ..density..), colour = "black", fill = "white")+
+      geom_density(alpha = 0.2, fill = "#FF6666") +
+      ggtitle(paste("Histogram of", var))
   })
   
   output$map <- renderLeaflet({
@@ -96,7 +96,8 @@ server <- function(input, output) {
     colnames(map_dat) <- c("lon", "lat", "chosen_var")
     leg_dat <- req(scale_dat())
     colnames(leg_dat) <- c("lon", "lat", "chosen_var_leg")
-    lab <- paste0(input$variable, ": ", map_dat$chosen_var)
+    lab <- paste0(input$variable, ": ", map_dat$chosen_var, 
+                  "; (", map_dat$lat, ", ", map_dat$lon, ")")
     leafletProxy("map", data = map_dat) %>%
       clearMarkers() %>% 
       clearControls() %>% 
