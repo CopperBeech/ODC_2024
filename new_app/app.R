@@ -29,7 +29,8 @@ ui <- fluidPage(
                        "Show prediction:",
                        list("None",
                             "Total snow crabs",
-                            "Proportion of female snow crabs")
+                            "Proportion of female snow crabs",
+                            "Simpson's diversity index")
                        )
            )
   ),
@@ -53,8 +54,9 @@ server <- function(input, output) {
            "Proportion of female snow crabs" = "female_percentage",
            "Simpson diversity index" = "Simpson_index") %>% 
     mutate(across(21:22, round, 3))
-  pred_fem <- raster("PreFemaleAll_01.tif")
-  pred_count <- raster("PreCountAll_01.tif")
+  pred_fem <- raster("SnowCrab_FemalePerc.tif")
+  pred_count <- raster("SnowCrab_Counts.tif")
+  pred_simp <- raster("Gulf_SimpsonsDiversity.tif")
   
   app_data <- reactive({
     if(input$year != "All years"){
@@ -136,6 +138,16 @@ server <- function(input, output) {
         addRasterImage(pred_fem, colors = pal2) %>% 
         addLegend(position = "topright", pal = pal2, values = values(pred_fem),
                   title = "Predicted female proportion")
+    } else if(input$pred == "Simpson's diversity index") {
+      pal3 <- colorNumeric("Spectral", domain = values(pred_simp), 
+                           na.color = "transparent")
+      proxy %>% 
+        clearImages() %>% 
+        clearMarkers() %>% 
+        clearControls() %>% 
+        addRasterImage(pred_simp, colors = pal3) %>% 
+        addLegend(position = "topright", pal = pal3, values = values(pred_simp),
+                  title = "Predicted Simpson's diversity index")
     }
   })
 
