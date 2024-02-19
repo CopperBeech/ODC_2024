@@ -9,7 +9,7 @@ ui <- fluidPage(
   fluidRow(
     column(3, offset = 0.5,
            selectInput("year",
-                       "Choose year",
+                       "Choose year:",
                        list("All years",
                             2019, 2020, 2021, 2022)
            )
@@ -30,8 +30,9 @@ ui <- fluidPage(
                        list("None",
                             "Total snow crabs",
                             "Proportion of female snow crabs",
-                            "Simpson's diversity index",
-                            "Target snow crab fishing grounds")
+                            "Simpson's diversity index"
+                            #,"Target snow crab fishing grounds"
+                            )
                        )
            )
   ),
@@ -58,7 +59,7 @@ server <- function(input, output) {
   pred_fem <- raster("SnowCrab_FemalePerc.tif")
   pred_count <- raster("SnowCrab_Counts.tif")
   pred_simp <- raster("Gulf_SimpsonsDiversity.tif")
-  pred_target <- raster("SnowCrab_TargetFishingGrounds.tif")
+  # pred_target <- raster("SnowCrab_TargetFishingGrounds.tif")
   
   app_data <- reactive({
     if(input$year != "All years"){
@@ -150,17 +151,17 @@ server <- function(input, output) {
         addRasterImage(pred_simp, colors = pal3) %>% 
         addLegend(position = "topright", pal = pal3, values = values(pred_simp),
                   title = "Predicted Simpson's diversity index")
-    } else if(input$pred == "Target snow crab fishing grounds"){
-      pal4 <- colorNumeric("Spectral", domain = values(pred_target), 
-                           na.color = "transparent", reverse = TRUE)
-      proxy %>% 
-        clearImages() %>% 
-        clearMarkers() %>% 
-        clearControls() %>% 
-        addRasterImage(pred_target, colors = pal4) %>% 
-        addLegend(position = "topright", pal = pal4, values = values(pred_target),
-                  title = "Target snow crab fishing grounds")
-    }
+    } #else if(input$pred == "Target snow crab fishing grounds"){
+    #   pal4 <- colorNumeric("Spectral", domain = values(pred_target), 
+    #                        na.color = "transparent", reverse = TRUE)
+    #   proxy %>% 
+    #     clearImages() %>% 
+    #     clearMarkers() %>% 
+    #     clearControls() %>% 
+    #     addRasterImage(pred_target, colors = pal4) %>% 
+    #     addLegend(position = "topright", pal = pal4, values = values(pred_target),
+    #               title = "Target snow crab fishing grounds")
+    # }
   })
 
 }

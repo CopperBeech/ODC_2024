@@ -1,0 +1,12 @@
+name: gulf_of_st_lawrence_snow_crab_tracker
+title: gulf_of_st_lawrence_snow_crab_tracker
+username: joseph-barss
+account: joseph-barss
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11268247
+bundleId: 8272805
+url: https://joseph-barss.shinyapps.io/gulf_of_st_lawrence_snow_crab_tracker/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
