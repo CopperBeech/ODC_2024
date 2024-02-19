@@ -5,7 +5,7 @@ library(raster)
 
 ui <- fluidPage(
   
-  titlePanel("Snow Crab Trawl Survey Data"),
+  titlePanel("Gulf of St. Lawrence Snow Crab Tracker"),
   fluidRow(
     column(3, offset = 0.5,
            selectInput("year",
@@ -30,7 +30,8 @@ ui <- fluidPage(
                        list("None",
                             "Total snow crabs",
                             "Proportion of female snow crabs",
-                            "Simpson's diversity index")
+                            "Simpson's diversity index",
+                            "Target snow crab fishing grounds")
                        )
            )
   ),
@@ -57,6 +58,7 @@ server <- function(input, output) {
   pred_fem <- raster("SnowCrab_FemalePerc.tif")
   pred_count <- raster("SnowCrab_Counts.tif")
   pred_simp <- raster("Gulf_SimpsonsDiversity.tif")
+  pred_target <- raster("SnowCrab_TargetFishingGrounds.tif")
   
   app_data <- reactive({
     if(input$year != "All years"){
@@ -81,7 +83,7 @@ server <- function(input, output) {
   
   colorpal <- reactive({
     col_dat <- req(scale_dat())
-    colorpal <- colorNumeric("magma", domain = col_dat[,3], reverse = TRUE)
+    colorpal <- colorNumeric("Spectral", domain = col_dat[,3], reverse = TRUE)
   })
   
   output$distPlot <- renderPlot({
@@ -120,7 +122,7 @@ server <- function(input, output) {
                   title = input$variable)
     } else if(input$pred == "Total snow crabs") {
       pal1 <- colorNumeric("Spectral", domain = values(pred_count), 
-                           na.color = "transparent")
+                           na.color = "transparent", reverse = TRUE)
       proxy %>% 
         clearImages() %>% 
         clearMarkers() %>% 
@@ -130,7 +132,7 @@ server <- function(input, output) {
                   title = "Predicted total count") 
     } else if(input$pred == "Proportion of female snow crabs") {
       pal2 <- colorNumeric("Spectral", domain = values(pred_fem), 
-                           na.color = "transparent")
+                           na.color = "transparent", reverse = TRUE)
       proxy %>% 
         clearImages() %>% 
         clearMarkers() %>% 
@@ -140,7 +142,7 @@ server <- function(input, output) {
                   title = "Predicted female proportion")
     } else if(input$pred == "Simpson's diversity index") {
       pal3 <- colorNumeric("Spectral", domain = values(pred_simp), 
-                           na.color = "transparent")
+                           na.color = "transparent", reverse = TRUE)
       proxy %>% 
         clearImages() %>% 
         clearMarkers() %>% 
@@ -148,6 +150,16 @@ server <- function(input, output) {
         addRasterImage(pred_simp, colors = pal3) %>% 
         addLegend(position = "topright", pal = pal3, values = values(pred_simp),
                   title = "Predicted Simpson's diversity index")
+    } else if(input$pred == "Target snow crab fishing grounds"){
+      pal4 <- colorNumeric("Spectral", domain = values(pred_target), 
+                           na.color = "transparent", reverse = TRUE)
+      proxy %>% 
+        clearImages() %>% 
+        clearMarkers() %>% 
+        clearControls() %>% 
+        addRasterImage(pred_target, colors = pal4) %>% 
+        addLegend(position = "topright", pal = pal4, values = values(pred_target),
+                  title = "Target snow crab fishing grounds")
     }
   })
 
